@@ -1,4 +1,15 @@
 # 接口总线
+
+## 安装
+```
+npm install apibus --save
+
+or
+
+yarn add apibus --save
+
+```
+
 ## 1、快捷注册api
 ###### 使用说明
 ```
