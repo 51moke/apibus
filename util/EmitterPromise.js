@@ -43,7 +43,7 @@ export default class EmitterPromise {
                 let _n = _o._name.substring(0, _length + 1) + '*';
                 //console.log('监听器', name, _n, _o._type);
                 if (name === _n) {
-                    console.log('符合组', _o._name);
+                    //console.log('符合组', _o._name);
                     let _f = (...arg)=>func(...arg);
                     _f._type = "group";
                     this.use(_o._name, _f);
@@ -97,15 +97,20 @@ export default class EmitterPromise {
         return this;
     }
 
-    entry(name, data, callback) {
+    entry(name, data, callback, formData = {}) {
         let id;
         if (typeof name == 'object') {
             id = name.id;
             name = name.name;
         }
-        let formData = {
-            name: id || name
+        /*let formData = {
+         name: id || name
+         }*/
+        if (typeof formData !== 'object') {
+            formData = {};
         }
+        formData.name = id || name;
+
         let middles = this._config.middles[name];
         if (middles) {
             //console.log('执行中间件');
@@ -127,6 +132,9 @@ export default class EmitterPromise {
                 });
             }
             //callback(_func(Promise.resolve(data)), formData);
+            if (callback) {
+                return callback(_func(Promise.resolve(data)), formData);
+            }
             return _func(Promise.resolve(data));
         }
 
@@ -146,7 +154,7 @@ export default class EmitterPromise {
 
          }
          if (isG) {
-         return this.entry(name, data, callback);
+         return this.entry(name, data, callback,formData);
          }
          }*/
 
@@ -180,12 +188,15 @@ export default class EmitterPromise {
 
             }
             if (isG) {
-                return this.entry(name, data, callback);
+                return this.entry(name, data, callback, formData);
             }
         }
 
 
         //callback(Promise.resolve(data), formData);
+        if (callback) {
+            return callback(Promise.resolve(data), formData);
+        }
         return Promise.resolve(data);
     }
 }

@@ -44,11 +44,16 @@ export const Register = function (apiModuleName, classArgs = []) {
                 return (...args)=> {
                     return new Promise((resolve)=> {
                         let _lnterceptName = apiModuleName ? apiModuleName + '.' + name : name;
-                        resolve(response.entry(_lnterceptName, args).then(arg=> {
+                        let _formData;
+                        resolve(response.entry(_lnterceptName, args, (res, formData)=> {
+                            //console.log('拿到', formData);
+                            _formData = formData;
+                            return res;
+                        }).then(arg=> {
                             //console.log('转换', arg);
                             return Promise.resolve(serviceClass[name](...arg)).then(_data=> {
-                                //console.log('结果', _data);
-                                return restful.entry(_lnterceptName, _data);
+                                //console.log('结果', _data,_formData);
+                                return restful.entry(_lnterceptName, _data, null, _formData);
                             }).catch(err=> {
                                 //console.log('出错了111', err);
                                 return Promise.reject(err);
