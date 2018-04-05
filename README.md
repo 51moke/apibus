@@ -6,7 +6,7 @@ npm install apibus --save
 
 or
 
-yarn add apibus --save
+yarn add apibus
 
 ```
 
@@ -260,6 +260,75 @@ apibus.res((promise, apiInfo)=> {
         return res;
     });
 })
+```
+
+
+## 6、代理注册api,需要客户端支持Proxy (v1.0.4新加)
+###### 使用说明
+```
+import apibus from 'apibus'
+apibus.Register('模型名')((接口名)=>{
+    return (...接收到调用接口的参数)=>{
+        return 结果
+    }
+},true);
+```
+
+###### 代理注册实例:
+```
+import apibus from 'apibus'
+
+apibus.Register('proxyService')((name)=> {
+
+  //对auth单独处理
+  if (name == 'auth') {
+    return (...args)=> {
+      return 'auth';
+    }
+  }
+  //对getName单独处理
+  if (name == 'getName') {
+    return (...args)=> {
+      return 'getName';
+    }
+  }
+  //...
+
+  //如果想让proxyService服务有无限方法，可以返回一个通用的（这部是可选）
+  return (...args)=> {
+    return '通用的proxyService服务->执行了:api.proxyService.' + name;
+  }
+
+}, true)
+```
+###### 调用api：
+```
+import {api} from 'apibus'
+
+api.proxyService.auth()
+    .then(res=> {
+        console.log('正常返回', res);
+    })
+    .catch(err => {
+        console.log('异常返回', err);
+    });
+
+api.proxyService.getName()
+    .then(res=> {
+        console.log('正常返回', res);
+    })
+    .catch(err => {
+        console.log('异常返回', err);
+    });
+
+//调用一个不存在的接口（服务如果有全局就返回全局）
+api.proxyService.demo()
+    .then(res=> {
+        console.log('正常返回', res);
+    })
+    .catch(err => {
+        console.log('异常返回', err);
+    });
 ```
 
 [进入github](https://github.com/51moke/apibus.git)

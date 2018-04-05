@@ -32,6 +32,38 @@ export const Register = function (apiModuleName, classArgs = []) {
     }
 
     /**
+     * 拦截器名称，api方法，参数
+     * @param _lnterceptName
+     * @param apiFunc
+     * @param args
+     * @returns {Promise<T>|Promise}
+     */
+    let setEmitter = (_lnterceptName, apiFunc, args)=> {
+        return new Promise((resolve)=> {
+            //let _lnterceptName = apiModuleName ? apiModuleName + '.' + name : name;
+            let _formData;
+            resolve(response.entry(_lnterceptName, args, (res, formData)=> {
+                //console.log('拿到', formData);
+                _formData = formData;
+                return res;
+            }).then(arg=> {
+                //console.log('转换', arg);
+                return Promise.resolve(apiFunc(...arg)).then(_data=> {
+                    //console.log('结果', _data,_formData);
+                    return restful.entry(_lnterceptName, _data, null, _formData);
+                }).catch(err=> {
+                    //console.log('出错了111', err);
+                    return Promise.reject(err);
+                })
+            }).catch(err=> {
+                //console.log('走异常了', err);
+                return restful.entry(_lnterceptName, Promise.reject(err), null, _formData);
+            }));
+
+        })
+    }
+
+    /**
      * 绑定功能
      * @param obj
      * @param name
@@ -42,28 +74,9 @@ export const Register = function (apiModuleName, classArgs = []) {
             get: function () {
                 //return serviceClass[name];
                 return (...args)=> {
-                    return new Promise((resolve)=> {
-                        let _lnterceptName = apiModuleName ? apiModuleName + '.' + name : name;
-                        let _formData;
-                        resolve(response.entry(_lnterceptName, args, (res, formData)=> {
-                            //console.log('拿到', formData);
-                            _formData = formData;
-                            return res;
-                        }).then(arg=> {
-                            //console.log('转换', arg);
-                            return Promise.resolve(serviceClass[name](...arg)).then(_data=> {
-                                //console.log('结果', _data,_formData);
-                                return restful.entry(_lnterceptName, _data, null, _formData);
-                            }).catch(err=> {
-                                //console.log('出错了111', err);
-                                return Promise.reject(err);
-                            })
-                        }).catch(err=> {
-                            //console.log('走异常了', err);
-                            return restful.entry(_lnterceptName, Promise.reject(err));
-                        }));
-
-                    })
+                    let _lnterceptName = apiModuleName ? apiModuleName + '.' + name : name;
+                    let apiFunc = serviceClass[name];
+                    return setEmitter(_lnterceptName, apiFunc, args);
                 }
             },
             enumerable: false
@@ -108,7 +121,27 @@ export const Register = function (apiModuleName, classArgs = []) {
      * @param c
      * @returns {_service}
      */
-    return function (c) {
+    return function (c, isProxy = false) {
+
+        if (isProxy) {
+            apiData[apiModuleName] = new Proxy({}, {
+                get: function (target, key, receiver) {
+                    console.log(`getting ${key}!`);
+                    return (...args)=> {
+                        return setEmitter(apiModuleName + '.' + key, (...param)=> {
+                            //console.log('接收到的参数',param);
+                            let api = c(key);
+                            if (typeof api == 'function') {
+                                return api(...param);
+                            }
+                            throw Error('api.' + apiModuleName + '.' + key + ' is not a function')
+                        }, args);
+                    };
+                }
+            });
+            return;
+        }
+
         const _service = function (...args) {
 
             let serviceClass = new c(...args);
