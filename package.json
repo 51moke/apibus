@@ -1,6 +1,6 @@
 {
   "name": "apibus",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "接口总线",
   "main": "index.js",
   "scripts": {

@@ -9,6 +9,12 @@ const res = restful.use.bind(restful);
 
 let apiData = {};
 
+export const store = {};
+
+export const SetStore = function (name, value) {
+    store[name] = value;
+}
+
 //注册api
 export const Register = function (apiModuleName, classArgs = []) {
 
@@ -192,5 +198,5 @@ export const Register = function (apiModuleName, classArgs = []) {
 
 }
 
-export default {Register, use, res, EmitterPromise};
+export default {Register, use, res, EmitterPromise, store, SetStore};
 export let api = apiData;
