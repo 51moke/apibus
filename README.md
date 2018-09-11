@@ -220,31 +220,31 @@ api.user.getInfo(1)
 ```
 import apibus from 'apibus'
 //拦截器方法第一个参数返回标准的 Promise,第二个参数返回接口相关信息
-apibus.use('模型名.方法名',(标准Promise,api信息)=>{
+apibus.Req('模型名.方法名',(标准Promise,api信息)=>{
     return 最终结果;
 })
 ```
 ###### 拦截指定用法方法:
 ```
-apibus.use('模型名.方法名',拦截方法)    //调用api之前拦截
-apibus.res('模型名.方法名',拦截方法)    //调用api完成之前返回拦截
+apibus.Req('模型名.方法名',拦截方法)    //调用api之前拦截
+apibus.Res('模型名.方法名',拦截方法)    //调用api完成之前返回拦截
 ```
 ###### 拦截模型所有方法：
 ```
-apibus.use('模型名.*',拦截方法)    //拦截模型所有方法，调用api之前拦截
-apibus.res('模型名.*',拦截方法)    //拦截模型所有方法，调用api完成之前返回拦截
+apibus.Req('模型名.*',拦截方法)    //拦截模型所有方法，调用api之前拦截
+apibus.Res('模型名.*',拦截方法)    //拦截模型所有方法，调用api完成之前返回拦截
 ```
 ###### 拦截所有api方法
 ```
-apibus.use(拦截方法)    //拦截所有api方法，调用api之前拦截
-apibus.res(拦截方法)    //拦截所有api方法，调用api完成之前返回拦截
+apibus.Req(拦截方法)    //拦截所有api方法，调用api之前拦截
+apibus.Res(拦截方法)    //拦截所有api方法，调用api完成之前返回拦截
 ```
 ###### 拦截实例(接口进出log)
 ```
 import apibus from 'apibus'
 
 //打接口被调用log
-apibus.use((promise, apiInfo)=> {
+apibus.Req((promise, apiInfo)=> {
     return promise.then(res=> {
         console.log('exec-> api name:', apiInfo.name, ' value:', res);
         return res;
@@ -254,9 +254,9 @@ apibus.use((promise, apiInfo)=> {
 //...更多的拦截器
 
 //打接口返回值log
-apibus.res((promise, apiInfo)=> {
+apibus.Res((promise, apiInfo)=> {
     return promise.then(res=> {
-        console.log('restful-> api name:', apiInfo.name, ' value:', res);
+        console.log('res-> api name:', apiInfo.name, ' value:', res);
         return res;
     });
 })
@@ -329,6 +329,38 @@ api.proxyService.demo()
     .catch(err => {
         console.log('异常返回', err);
     });
+```
+## 7、全局
+###### 使用说明
+```
+import apibus from 'apibus'
+//赋值
+api.SetGlobal(key,value)
+//取值
+api.G[key]
+```
+
+###### 全局实例:
+```
+import apibus,{G} from 'apibus'
+
+//赋值
+apibus.SetGlobal('funDemo',()=>{
+    console.log('this is funDemo')
+})
+apibus.SetGlobal('stringDemo','string')
+apibus.SetGlobal('objDemo',{name:'张三',age:20})
+
+//取值
+apibus.G.funDemo()
+console.log(apibus.G.stringDemo)
+console.log(apibus.G.objDemo)
+
+//or
+G.funDemo()
+console.log(G.stringDemo)
+console.log(G.objDemo)
+
 ```
 
 [进入github](https://github.com/51moke/apibus.git)

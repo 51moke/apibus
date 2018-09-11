@@ -2,17 +2,23 @@
  * Created by laomao on 2018/3/25.
  */
 import EmitterPromise from './util/EmitterPromise';
-const restful = new EmitterPromise();
 const response = new EmitterPromise();
-const use = response.use.bind(response);
-const res = restful.use.bind(restful);
+const request = new EmitterPromise();
+const Req = request.use.bind(request);
+const Res = response.use.bind(response);
+// request
+// response
 
 let apiData = {};
 
-export const store = {};
+export const G = {};
 
-export const SetStore = function (name, value) {
-    store[name] = value;
+export const SetGlobal = function (name, value) {
+    if(name!==''){
+        G[name] = value;
+        return true
+    }
+    return false
 }
 
 //注册api
@@ -48,7 +54,7 @@ export const Register = function (apiModuleName, classArgs = []) {
         return new Promise((resolve)=> {
             //let _lnterceptName = apiModuleName ? apiModuleName + '.' + name : name;
             let _formData;
-            resolve(response.entry(_lnterceptName, args, (res, formData)=> {
+            resolve(request.entry(_lnterceptName, args, (res, formData)=> {
                 //console.log('拿到', formData);
                 _formData = formData;
                 return res;
@@ -56,14 +62,14 @@ export const Register = function (apiModuleName, classArgs = []) {
                 //console.log('转换', arg);
                 return Promise.resolve(apiFunc(...arg)).then(_data=> {
                     //console.log('结果', _data,_formData);
-                    return restful.entry(_lnterceptName, _data, null, _formData);
+                    return response.entry(_lnterceptName, _data, null, _formData);
                 }).catch(err=> {
                     //console.log('出错了111', err);
                     return Promise.reject(err);
                 })
             }).catch(err=> {
                 //console.log('走异常了', err);
-                return restful.entry(_lnterceptName, Promise.reject(err), null, _formData);
+                return response.entry(_lnterceptName, Promise.reject(err), null, _formData);
             }));
 
         })
@@ -198,5 +204,6 @@ export const Register = function (apiModuleName, classArgs = []) {
 
 }
 
-export default {Register, use, res, EmitterPromise, store, SetStore};
+export default {Register, Req, Res, EmitterPromise, G, SetGlobal};
 export let api = apiData;
+
