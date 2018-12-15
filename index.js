@@ -60,6 +60,10 @@ export const Register = function (apiModuleName, classArgs = []) {
                 return res;
             }).then(arg=> {
                 //console.log('转换', arg);
+                //修复拦截器不返回或返回不是数组异常
+                if(!Array.isArray(arg)){
+                    arg = []
+                }
                 return Promise.resolve(apiFunc(...arg)).then(_data=> {
                     //console.log('结果', _data,_formData);
                     return response.entry(_lnterceptName, _data, null, _formData);
@@ -87,7 +91,9 @@ export const Register = function (apiModuleName, classArgs = []) {
                 //return serviceClass[name];
                 return (...args)=> {
                     let _lnterceptName = apiModuleName ? apiModuleName + '.' + name : name;
-                    let apiFunc = serviceClass[name];
+                    let apiFunc = serviceClass[name].bind(serviceClass);
+                    //console.log('!!!!!!!!!!!!!!!!!',apiFunc,serviceClass)
+                    
                     return setEmitter(_lnterceptName, apiFunc, args);
                 }
             },
