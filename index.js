@@ -86,6 +86,9 @@ export const Register = function (apiModuleName, classArgs = []) {
      * @param serviceClass
      */
     let bindAction = (obj, name, serviceClass)=> {
+        if(obj[name]){
+            return ;
+        }
         Object.defineProperty(obj, name, {
             get: function () {
                 //return serviceClass[name];
@@ -163,8 +166,15 @@ export const Register = function (apiModuleName, classArgs = []) {
         const _service = function (...args) {
 
             let serviceClass = new c(...args);
+            
+            //解析extends
+            let base = []
+            if(serviceClass.constructor.__proto__.prototype){
+                base = Object.getOwnPropertyNames(serviceClass.constructor.__proto__.prototype)
+            }
+
             //console.log('创建的类', serviceClass);
-            let serviceFuns = Object.getOwnPropertyNames(Object.getPrototypeOf(serviceClass));
+            let serviceFuns = [...Object.getOwnPropertyNames(Object.getPrototypeOf(serviceClass)),...base];
             //console.log('方法', serviceFuns);
             //类属性
             for (let i in serviceClass) {
