@@ -363,4 +363,27 @@ console.log(G.objDemo)
 
 ```
 
+# 版本说明
+###### (1.0.8)支持es6类的继承
+
+```
+class baseUser{
+    mySay(){
+        console.log('我是父类')
+        return {code:0}
+    }
+}
+
+@Register('user')
+class user extends baseUser {
+
+}
+
+//调用
+api.user.mySay().then(res => {
+  console.log('res', res)
+})
+
+```
+
 [进入github](https://github.com/51moke/apibus.git)
