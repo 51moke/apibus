@@ -384,6 +384,8 @@ api.user.mySay().then(res => {
   console.log('res', res)
 })
 
+###### (1.0.9) es6 to es5
+
 ```
 
 [进入github](https://github.com/51moke/apibus.git)
